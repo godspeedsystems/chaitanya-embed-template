@@ -9,6 +9,9 @@ class SocketService {
     this.socket = io(env.socketUrl, {
       transports: ['websocket'],
       autoConnect: false, // We will manually connect
+      auth: {
+        'x-user-id': env.userId,
+      },
     });
 
     this.socket.on('connect', () => {
@@ -33,6 +36,7 @@ class SocketService {
 
   public connect() {
     if (!this.socket.connected) {
+      // Update auth/headers before connecting
       this.socket.connect();
     }
   }

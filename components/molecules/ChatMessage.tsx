@@ -14,6 +14,8 @@ interface ChatMessageProps {
 export const ChatMessage: React.FC<ChatMessageProps> = ({ message, agentIcon, agentName }) => {
   const isUser = message.role === 'user';
 
+  if (!message.content) return null;
+
   return (
     <div className={`flex gap-3 mb-6 ${isUser ? 'flex-row-reverse' : 'flex-row'} animate-fadeIn`}>
       {/* Avatar */}
