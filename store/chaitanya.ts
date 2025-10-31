@@ -1,5 +1,5 @@
 import { emptyApi as api } from './emptyApi';
-export const addTagTypes = ['Agents', 'Embed'] as const;
+export const addTagTypes = ['Agents', 'Embed', 'Conversations'] as const;
 const injectedRtkApi = api
   .enhanceEndpoints({
     addTagTypes,
@@ -26,6 +26,18 @@ const injectedRtkApi = api
           },
         }),
         providesTags: ['Embed', 'Agents'],
+      }),
+      getEmbedConversationById: build.query<
+        GetEmbedConversationByIdApiResponse,
+        GetEmbedConversationByIdApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/embed/conversation/${encodeURIComponent(String(queryArg.id))}`,
+          headers: {
+            'x-user-id': queryArg['x-user-id'],
+          },
+        }),
+        providesTags: ['Embed', 'Conversations'],
       }),
     }),
     overrideExisting: false,
@@ -79,4 +91,45 @@ export type Agent = {
   createdAt: string;
   /** Timestamp when the agent was last updated */
   updatedAt: string;
+};
+export type GetEmbedConversationByIdApiResponse =
+  /** status 200 Conversation retrieved successfully */ Conversation;
+export type GetEmbedConversationByIdApiArg = {
+  /** Unique identifier of the conversation to retrieve */
+  id: string;
+  /** User ID */
+  'x-user-id': string;
+};
+export type UserId = string;
+export type AgentId = string;
+export type StartedAt = string;
+export type EndedAt = string | null;
+export type Role = 'USER' | 'ASSISTANT' | 'SYSTEM';
+export type Content = string;
+export type Metadata = object;
+export type Message = {
+  /** Unique identifier for the message. */
+  id: string;
+  /** Identifier for the conversation this message belongs to. */
+  conversationId: string;
+  role: Role;
+  content: Content;
+  metadata?: Metadata | null;
+  /** Timestamp when the message was created. */
+  createdAt: string;
+  conversation?: Conversation;
+};
+export type MultipleMessages = Message[];
+export type Conversation = {
+  /** Unique identifier for the conversation. */
+  id: string;
+  userId: UserId;
+  agentId: AgentId;
+  startedAt: StartedAt;
+  endedAt?: EndedAt;
+  /** Timestamp when the conversation was created. */
+  createdAt: string;
+  /** Timestamp when the conversation was last updated. */
+  updatedAt: string;
+  messages?: MultipleMessages;
 };
