@@ -229,7 +229,7 @@ export default function Home() {
               e.preventDefault();
               handleSend();
             }}
-            className="flex gap-3 items-end"
+            className="flex gap-3 items-start"
           >
             <div className="flex-1 relative">
               <textarea
