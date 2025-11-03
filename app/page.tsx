@@ -5,7 +5,7 @@ import env from '@/env';
 import { useSocket } from '@/hooks/useSocket';
 import { RootState, store } from '@/store';
 import { connectSocket } from '@/store/socketSlice';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { ChatMessage } from '@/components/molecules/ChatMessage';
 import { TypingIndicator } from '@/components/atoms/TypingIndicator';
@@ -39,7 +39,7 @@ export default function Home() {
     typeof window !== 'undefined' ? window.localStorage.getItem('conversationId') || null : null,
   );
   const { data: conversation } = chaitanyaApi.useGetEmbedConversationByIdQuery(
-    { id: currentConversationId || '', 'x-user-id': env.userId },
+    { id: currentConversationId || '', 'x-user-id': env.userId, 'x-user-email': env.userEmail },
     { skip: !currentConversationId },
   );
 
@@ -58,7 +58,8 @@ export default function Home() {
 
     // 2️⃣ Prepare payload for backend
     const payload = {
-      userId: env.userId, // your logged-in user (replace with real auth user)
+      userId: env.userId,
+      userEmail: env.userEmail,
       agentId: agent.id,
       message: input,
       conversationId: currentConversationId ?? undefined,
@@ -75,7 +76,7 @@ export default function Home() {
     setCurrentConversationId(null);
   };
 
-  useSocket('stream.start', () => {
+  const handleStreamStart = useCallback(() => {
     setIsLoading(true);
     setMessages((prev) => [
       ...prev,
@@ -86,31 +87,38 @@ export default function Home() {
         timestamp: new Date(),
       },
     ]);
-  });
+  }, []);
 
-  useSocket('stream.chunk', (data) => {
+  const handleStreamChunk = useCallback((data: { message: string }) => {
     setMessages((prev) => {
       const updated = [...prev];
       const lastMsg = updated[updated.length - 1];
       if (lastMsg?.role === 'assistant') {
-        lastMsg.content += data.message;
+        // To prevent mutation, we create a new object for the last message
+        updated[updated.length - 1] = { ...lastMsg, content: lastMsg.content + data.message };
       }
-      return [...updated];
+      return updated;
     });
-  });
+  }, []);
 
-  useSocket('stream.end', () => {
+  const handleStreamEnd = useCallback(() => {
     setIsLoading(false);
-  });
+  }, []);
 
-  useSocket('stream.updated', (data) => {
+  const handleStreamUpdated = useCallback((data: { conversationId: string }) => {
     if (data.conversationId) setCurrentConversationId(data.conversationId);
-  });
+  }, []);
 
-  useSocket('stream.error', (err) => {
+  const handleStreamError = useCallback((err: any) => {
     console.error('Stream error:', err);
     setIsLoading(false);
-  });
+  }, []);
+
+  useSocket('stream.start', handleStreamStart);
+  useSocket('stream.chunk', handleStreamChunk);
+  useSocket('stream.end', handleStreamEnd);
+  useSocket('stream.updated', handleStreamUpdated);
+  useSocket('stream.error', handleStreamError);
 
   useEffect(() => {
     window.localStorage.setItem('conversationId', currentConversationId || '');

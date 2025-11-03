@@ -14,6 +14,7 @@ const injectedRtkApi = api
           url: `/embed/agent`,
           headers: {
             'x-user-id': queryArg['x-user-id'],
+            'x-user-email': queryArg['x-user-email'],
           },
         }),
         providesTags: ['Embed', 'Agents'],
@@ -23,6 +24,7 @@ const injectedRtkApi = api
           url: `/embed/agent/${encodeURIComponent(String(queryArg.id))}`,
           headers: {
             'x-user-id': queryArg['x-user-id'],
+            'x-user-email': queryArg['x-user-email'],
           },
         }),
         providesTags: ['Embed', 'Agents'],
@@ -35,6 +37,7 @@ const injectedRtkApi = api
           url: `/embed/conversation/${encodeURIComponent(String(queryArg.id))}`,
           headers: {
             'x-user-id': queryArg['x-user-id'],
+            'x-user-email': queryArg['x-user-email'],
           },
         }),
         providesTags: ['Embed', 'Conversations'],
@@ -45,15 +48,19 @@ const injectedRtkApi = api
 export { injectedRtkApi as chaitanyaApi };
 export type GetEmbedCurrentAgentApiResponse = /** status 200 Agent retrieved successfully */ Agent;
 export type GetEmbedCurrentAgentApiArg = {
-  /** User ID */
-  'x-user-id': string;
+  /** User ID. Either x-user-id or x-user-email is required. */
+  'x-user-id'?: string;
+  /** User email. Either x-user-id or x-user-email is required. */
+  'x-user-email'?: string;
 };
 export type GetEmbedAgentByIdApiResponse = /** status 200 Agent retrieved successfully */ Agent;
 export type GetEmbedAgentByIdApiArg = {
   /** Unique identifier of the agent to retrieve */
   id: string;
-  /** User ID */
-  'x-user-id': string;
+  /** User ID. Either x-user-id or x-user-email is required. */
+  'x-user-id'?: string;
+  /** User email. Either x-user-id or x-user-email is required. */
+  'x-user-email'?: string;
 };
 export type Name = string;
 export type AgentType = 'CHATBOT' | 'AUTOMATION' | 'DATA_ANALYSIS' | 'OTHER';
@@ -97,8 +104,10 @@ export type GetEmbedConversationByIdApiResponse =
 export type GetEmbedConversationByIdApiArg = {
   /** Unique identifier of the conversation to retrieve */
   id: string;
-  /** User ID */
-  'x-user-id': string;
+  /** User ID. Either x-user-id or x-user-email is required. */
+  'x-user-id'?: string;
+  /** User email. Either x-user-id or x-user-email is required. */
+  'x-user-email'?: string;
 };
 export type UserId = string;
 export type AgentId = string;

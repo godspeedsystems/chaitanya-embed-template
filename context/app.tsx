@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 import { chaitanyaApi, type Agent } from '@/store/chaitanya';
 import env from '@/env';
 
@@ -14,7 +14,10 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 // Create a provider component
 export const AppProvider = ({ children }: { children: ReactNode }) => {
-  const { data: agent } = chaitanyaApi.useGetEmbedCurrentAgentQuery({ 'x-user-id': env.userId });
+  const { data: agent } = chaitanyaApi.useGetEmbedCurrentAgentQuery({
+    'x-user-id': env.userId,
+    'x-user-email': env.userEmail,
+  });
 
   return <AppContext.Provider value={{ agent }}>{children}</AppContext.Provider>;
 };
