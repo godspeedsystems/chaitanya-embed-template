@@ -11,6 +11,7 @@ import { ChatMessage } from '@/components/molecules/ChatMessage';
 import { TypingIndicator } from '@/components/atoms/TypingIndicator';
 import { PlusCircle, Send, Sparkles } from 'lucide-react';
 import { chaitanyaApi } from '@/store/chaitanya';
+import { socket } from '@/store/socket';
 
 export interface Message {
   id: string;
@@ -58,6 +59,7 @@ export default function Home() {
 
     // 2️⃣ Prepare payload for backend
     const payload = {
+      clientId: socket.id,
       userId: env.userId,
       userEmail: env.userEmail,
       agentId: agent.id,
